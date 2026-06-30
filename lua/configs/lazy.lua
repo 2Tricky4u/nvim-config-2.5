@@ -1,6 +1,8 @@
 return {
   defaults = { lazy = true },
   install = { colorscheme = { "nvchad" } },
+  -- Disable partial clones (--filter=blob:none) — workaround for Git 2.45+ SIGABRT bug on Arch
+  git = { filter = false },
 
   ui = {
     icons = {

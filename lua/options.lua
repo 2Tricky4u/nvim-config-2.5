@@ -1,6 +1,4 @@
 require "nvchad.options"
 
--- add yours here!
-
--- local o = vim.o
--- o.cursorlineopt ='both' -- to enable cursorline!
+vim.o.redrawtime = 1000
+vim.o.colorcolumn = "80"
