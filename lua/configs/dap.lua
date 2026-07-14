@@ -43,10 +43,13 @@ dap.adapters.codelldb = {
 }
 
 -- ── STM32 debug configurations ─────────────────────────────────────────────
--- Before launching: run openocd -f interface/stlink.cfg -f target/stm32f4x.cfg
+-- No separate terminal needed: cpptools launches OpenOCD, waits for the GDB port,
+-- flashes the ELF (`load`), halts at main. Change the board cfg below for another
+-- STM32 family (see: ls /usr/share/openocd/scripts/board/).
+local OPENOCD_BOARD_CFG = "board/st_nucleo_f4.cfg"
 dap.configurations.c = {
   {
-    name = "STM32 via OpenOCD",
+    name = "STM32: flash + debug (OpenOCD)",
     type = "cppdbg",
     request = "launch",
     program = function()
@@ -54,10 +57,19 @@ dap.configurations.c = {
     end,
     cwd = "${workspaceFolder}",
     stopAtEntry = true,
+    MIMode = "gdb",
     miDebuggerPath = "arm-none-eabi-gdb",
     miDebuggerServerAddress = "localhost:3333",
+    -- Let cpptools start and own the GDB server:
+    debugServerPath = "openocd",
+    debugServerArgs = "-f " .. OPENOCD_BOARD_CFG,
+    filterStderr = true,
+    serverStarted = "Listening on port 3333 for gdb connections",
     setupCommands = {
       { text = "-enable-pretty-printing", ignoreFailures = true },
+      { text = '-interpreter-exec console "monitor reset halt"', ignoreFailures = true },
+      { text = '-interpreter-exec console "load"', ignoreFailures = false },
+      { text = '-interpreter-exec console "monitor reset halt"', ignoreFailures = true },
     },
   },
   {

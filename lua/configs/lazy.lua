@@ -3,6 +3,8 @@ return {
   install = { colorscheme = { "nvchad" } },
   -- Disable partial clones (--filter=blob:none) — workaround for Git 2.45+ SIGABRT bug on Arch
   git = { filter = false },
+  -- No plugin needs luarocks (image.nvim uses the ImageMagick CLI); hererocks is broken on Arch
+  rocks = { enabled = false },
 
   ui = {
     icons = {

@@ -29,6 +29,9 @@ vim.lsp.config("clangd", {
     "--completion-style=detailed",
     "--function-arg-placeholders",
     "--fallback-style=llvm",
+    -- Allow clangd to query the ARM cross-compiler for its system includes/target
+    -- (needed by the `.clangd` Compiler: directive in embedded projects)
+    "--query-driver=/usr/bin/arm-none-eabi-*",
   },
 })
 vim.lsp.enable "clangd"

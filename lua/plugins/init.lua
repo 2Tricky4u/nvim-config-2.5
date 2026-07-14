@@ -1,4 +1,12 @@
 return {
+  -- Disable which-key's register popup on " so nvim-surround can receive it as a delimiter
+  {
+    "folke/which-key.nvim",
+    opts = {
+      plugins = { registers = false },
+    },
+  },
+
   {
     "stevearc/conform.nvim",
     -- event = 'BufWritePre', -- uncomment for format on save
@@ -42,6 +50,7 @@ return {
         "python",
         "c", "cpp", "cmake",
         "rust", "toml",
+        "markdown", "markdown_inline",
       },
     },
   },
@@ -53,7 +62,8 @@ return {
       ensure_installed = {
         "lua-language-server", "python-lsp-server",
         "clangd", "clang-format",
-        "cmake-language-server",
+        -- cmake-language-server: installed via pipx (not in Arch repos)
+        -- luacheck: installed via pacman (luarocks fails on Arch)
         "cpptools",      -- DAP: C/C++ via OpenOCD/GDB (STM32)
         "codelldb",      -- DAP: Rust + native C/C++
         "rust-analyzer",
@@ -93,13 +103,14 @@ return {
   },
 
   -- ── Navigation ─────────────────────────────────────────────────────────
-  -- s = jump, S (n/o only) = treesitter; visual S left for nvim-surround
+  -- s = jump (n/x only — keep o free so nvim-surround ys/cs/ds work)
+  -- S (n/o only) = treesitter; visual S left for nvim-surround
   {
     "folke/flash.nvim",
     event = "VeryLazy",
     opts = {},
     keys = {
-      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash: jump" },
+      { "s", mode = { "n", "x" }, function() require("flash").jump() end, desc = "Flash: jump" },
       { "S", mode = { "n", "o" }, function() require("flash").treesitter() end, desc = "Flash: treesitter" },
       { "r", mode = "o", function() require("flash").remote() end, desc = "Flash: remote" },
     },
@@ -211,6 +222,41 @@ return {
     opts = {
       cmake_build_directory = "build",
       cmake_generate_options = { "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON" },
+    },
+  },
+
+  -- ── Image viewer (Kitty backend) ────────────────────────────────────────
+  -- Prereq: sudo pacman -S imagemagick
+  {
+    "3rd/image.nvim",
+    event = "BufReadPost",
+    opts = {
+      backend = "kitty",
+      processor = "magick_cli", -- ImageMagick CLI; avoids the magick luarock (broken on Arch)
+      integrations = {
+        markdown = {
+          enabled = true,
+          clear_in_insert_mode = false,
+          download_remote_images = true,
+          only_render_image_at_cursor = false,
+        },
+      },
+      max_width_window_percentage = 70,
+      max_height_window_percentage = 50,
+      hijack_file_patterns = { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.avif" },
+    },
+  },
+
+  -- ── Markdown renderer ───────────────────────────────────────────────────
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    ft = { "markdown" },
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+    opts = {
+      heading = { enabled = true },
+      code = { enabled = true, style = "full" },
+      pipe_table = { enabled = true },
+      checkbox = { enabled = true },
     },
   },
 }
