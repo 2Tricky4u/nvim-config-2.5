@@ -140,9 +140,11 @@ return {
   -- ── Debugging ──────────────────────────────────────────────────────────
   {
     "mfussenegger/nvim-dap",
+    event = "VeryLazy", -- load shortly after startup so keymaps + :Svd/:Rtt/:Mem exist
     dependencies = {
       "rcarriga/nvim-dap-ui",
       "nvim-neotest/nvim-nio",
+      "theHamsta/nvim-dap-virtual-text", -- inline variable values while stepping
     },
     config = function()
       require "configs.dap"
@@ -244,6 +246,38 @@ return {
       max_width_window_percentage = 70,
       max_height_window_percentage = 50,
       hijack_file_patterns = { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.avif" },
+    },
+  },
+
+  -- ── Diagrams in markdown (mermaid/d2/plantuml/gnuplot) ──────────────────
+  -- Renders ```mermaid blocks as real inline images via image.nvim (Kitty).
+  -- Prereq: sudo pacman -S mermaid-cli   (provides `mmdc`)
+  {
+    "3rd/diagram.nvim",
+    dependencies = { "3rd/image.nvim" },
+    ft = { "markdown", "norg" },
+    opts = {
+      -- Each render spawns mmdc (chromium), ~1s, so don't fire on every keystroke.
+      -- Results are cached by content hash, so unchanged diagrams are instant.
+      events = {
+        render_buffer = { "InsertLeave", "BufWinEnter" },
+        clear_buffer = { "BufLeave" },
+      },
+      renderer_options = {
+        mermaid = {
+          theme = "dark",
+          background = "transparent",
+          scale = 3, -- render big, image.nvim scales down -> crisp
+        },
+      },
+    },
+    keys = {
+      { "<leader>mm", function() require("diagram").show_diagram_hover() end,
+        ft = { "markdown", "norg" }, desc = "Diagram: open at cursor in new tab" },
+      { "<leader>mr", function() require("diagram").render() end,
+        ft = { "markdown", "norg" }, desc = "Diagram: re-render buffer" },
+      { "<leader>mc", function() require("diagram").clear() end,
+        ft = { "markdown", "norg" }, desc = "Diagram: clear images" },
     },
   },
 
