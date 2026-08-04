@@ -155,7 +155,7 @@ return {
   -- rustaceanvim owns rust-analyzer — do NOT add rust-analyzer to lspconfig
   {
     "mrcjkb/rustaceanvim",
-    version = "^5",
+    version = "^9",
     ft = "rust",
     opts = function()
       local codelldb = vim.fn.stdpath "data" .. "/mason/bin/codelldb"
@@ -175,7 +175,8 @@ return {
           default_settings = {
             ["rust-analyzer"] = {
               cargo = { allFeatures = true },
-              checkOnSave = { command = "clippy" },
+              checkOnSave = true,
+              check = { command = "clippy" },
               inlayHints = { lifetimeElisionHints = { enable = "always" } },
             },
           },
