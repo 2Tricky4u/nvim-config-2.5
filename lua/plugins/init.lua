@@ -4,6 +4,9 @@ return {
     "folke/which-key.nvim",
     opts = {
       plugins = { registers = false },
+      spec = {
+        { "<leader>l", group = "lsp peek (glance)" },
+      },
     },
   },
 
@@ -132,6 +135,54 @@ return {
       { "<leader>xl", "<cmd>Trouble loclist toggle<CR>", desc = "Trouble: location list" },
       { "<leader>xq", "<cmd>Trouble qflist toggle<CR>", desc = "Trouble: quickfix" },
     },
+  },
+
+  -- ── LSP peek / preview ─────────────────────────────────────────────────
+  -- `gd` still jumps away; these peek instead. Results list on the right,
+  -- live preview on the left, <Esc> backs out without moving the cursor.
+  -- Fills the gap the built-ins leave: `grr`/`gri` only dump to the quickfix
+  -- list, and Telescope auto-jumps whenever there is exactly one result.
+  {
+    "dnlhc/glance.nvim",
+    cmd = "Glance",
+    keys = {
+      { "<leader>ld", "<cmd>Glance definitions<CR>", desc = "Glance: definitions" },
+      { "<leader>lr", "<cmd>Glance references<CR>", desc = "Glance: references" },
+      { "<leader>li", "<cmd>Glance implementations<CR>", desc = "Glance: implementations" },
+      { "<leader>lt", "<cmd>Glance type_definitions<CR>", desc = "Glance: type definitions" },
+      { "<leader>ll", "<cmd>Glance resume<CR>", desc = "Glance: resume last" },
+    },
+    opts = function()
+      local actions = require("glance").actions
+      return {
+        -- eldritch is dark, and base46 transparency leaves Normal with no bg
+        -- for 'auto' to sample -- so pin the derivation direction explicitly.
+        theme = { enable = true, mode = "brighten" },
+        -- With transparency on, these rules are the only thing separating the
+        -- peek window from the buffer showing through behind it.
+        border = { enable = true },
+        -- <C-q> hands results to trouble.nvim (already installed) instead of
+        -- the plain quickfix list, so it lands next to <leader>xx and friends.
+        use_trouble_qf = true,
+        -- Start expanded: peeking is meant to be immediate. Set this back to
+        -- true to get the collapsed per-file overview on big reference lists.
+        folds = { folded = false },
+        mappings = {
+          list = {
+            -- The list sits right, the preview left, so <C-h>/<C-l> keep the
+            -- same directional meaning they have everywhere else in mappings.lua.
+            ["<C-h>"] = actions.enter_win "preview",
+            -- Glance binds <leader>l itself; reclaim it as the LSP prefix.
+            ["<leader>l"] = false,
+          },
+          preview = {
+            ["<C-l>"] = actions.enter_win "list",
+            ["<leader>l"] = false,
+            ["q"] = actions.close,
+          },
+        },
+      }
+    end,
   },
 
   -- ── Git ────────────────────────────────────────────────────────────────
