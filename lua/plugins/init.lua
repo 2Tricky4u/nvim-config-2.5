@@ -27,7 +27,11 @@ return {
   { "RRethy/vim-illuminate", event = "BufReadPost" },
 
   -- CSS color preview (#fff, rgb(), etc.)
-  { "ap/vim-css-color", event = "BufReadPost" },
+  {
+    "catgoose/nvim-colorizer.lua",
+    event = "BufReadPost",
+    opts = { user_default_options = { names = false, rgb_fn = true, hsl_fn = true, RRGGBBAA = true } },
+  },
 
   -- Smooth <C-d>/<C-u> scrolling
   { "terryma/vim-smooth-scroll", event = "BufReadPost" },
