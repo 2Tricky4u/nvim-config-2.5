@@ -5,7 +5,7 @@ return {
     opts = {
       plugins = { registers = false },
       spec = {
-        { "<leader>l", group = "lsp peek (glance)" },
+        { "<leader>l", group = "lsp" },
       },
     },
   },
