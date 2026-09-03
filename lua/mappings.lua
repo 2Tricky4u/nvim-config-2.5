@@ -22,3 +22,31 @@ map("n", "<leader>ce", "<cmd>Copilot enable<CR>", { desc = "Enable Copilot" })
 map("n", "<leader>cd", "<cmd>Copilot disable<CR>", { desc = "Disable Copilot" })
 map("i", "<S-Tab>", 'copilot#Accept("")', { expr = true, replace_keycodes = false, desc = "Accept Copilot suggestion" })
 map("i", "<C-n>", "copilot#Next()", { expr = true, desc = "Next Copilot suggestion" })
+
+-- ── Terminals ───────────────────────────────────────────────────────────
+-- NvChad's toggleable terminals default to <A-h>/<A-v>/<A-i>, but Hyprland
+-- owns ALT ($mod = ALT in ~/.config/hypr/binds.conf -- Alt+H resizeactive,
+-- Alt+I addmaster), so those keys never reach Neovim. Drop them and rebind.
+for _, lhs in ipairs { "<A-h>", "<A-v>", "<A-i>" } do
+  for _, mode in ipairs { "n", "t" } do
+    pcall(vim.keymap.del, mode, lhs)
+  end
+end
+
+local function toggle_term(pos, id)
+  return function()
+    require("nvchad.term").toggle { pos = pos, id = id }
+  end
+end
+
+-- <leader> is Space, which cannot prefix anything in terminal mode (it has to
+-- type a literal space into the shell), so the always-available toggle needs a
+-- Ctrl chord. <C-@> is the same keycode on terminals that don't transmit
+-- <C-Space> distinctly; Kitty does, but this costs nothing and covers the rest.
+map({ "n", "t" }, "<C-Space>", toggle_term("float", "floatTerm"), { desc = "Terminal: toggle floating" })
+map({ "n", "t" }, "<C-@>", toggle_term("float", "floatTerm"), { desc = "Terminal: toggle floating" })
+
+-- Split terminals are normal-mode only -- press <C-x> first if you are inside
+-- one. NB: <leader>th is taken by NvChad's theme picker, hence ts/tv.
+map("n", "<leader>ts", toggle_term("sp", "htoggleTerm"), { desc = "Terminal: toggle horizontal" })
+map("n", "<leader>tv", toggle_term("vsp", "vtoggleTerm"), { desc = "Terminal: toggle vertical" })
