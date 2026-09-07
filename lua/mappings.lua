@@ -93,3 +93,18 @@ map("n", "<leader>lS", "<cmd>Telescope lsp_document_symbols<CR>", { desc = "LSP:
 -- actually reaches this function.
 map("n", "<leader>lc", "<cmd>Telescope lsp_incoming_calls<CR>", { desc = "LSP: incoming calls (callers)" })
 map("n", "<leader>lC", "<cmd>Telescope lsp_outgoing_calls<CR>", { desc = "LSP: outgoing calls (callees)" })
+
+-- ── Buffer close ────────────────────────────────────────────────────────
+-- NvChad's <leader>x is close_buffer(), a *buffer* verb. In a quickfix,
+-- loclist or help window that is wrong: the window survives and gets
+-- backfilled with the next listed buffer, leaving a split showing your code
+-- twice. Close the window for those; keep NvChad's behaviour everywhere else.
+map("n", "<leader>x", function()
+  local bt = vim.bo.buftype
+  if bt == "quickfix" or bt == "help" then
+    -- :close fails if it is the only window, which is fine to ignore
+    pcall(vim.cmd, "close")
+  else
+    require("nvchad.tabufline").close_buffer()
+  end
+end, { desc = "buffer close (closes window in qf/help)" })
