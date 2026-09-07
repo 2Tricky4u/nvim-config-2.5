@@ -45,9 +45,6 @@ return {
   -- Crystal language support
   { "vim-crystal/vim-crystal", ft = "crystal" },
 
-  -- GitHub Copilot (lazy-loaded on first insert)
-  { "github/copilot.vim", event = "InsertEnter" },
-
   -- Treesitter parsers
   {
     "nvim-treesitter/nvim-treesitter",

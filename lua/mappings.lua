@@ -16,13 +16,6 @@ map("n", "<C-j>", "<C-w>j", { desc = "Window down" })
 map("n", "<C-k>", "<C-w>k", { desc = "Window up" })
 map("n", "<C-l>", "<C-w>l", { desc = "Window right" })
 
--- Copilot (disable Tab so cmp can use it)
-vim.g.copilot_no_tab_map = true
-map("n", "<leader>ce", "<cmd>Copilot enable<CR>", { desc = "Enable Copilot" })
-map("n", "<leader>cd", "<cmd>Copilot disable<CR>", { desc = "Disable Copilot" })
-map("i", "<S-Tab>", 'copilot#Accept("")', { expr = true, replace_keycodes = false, desc = "Accept Copilot suggestion" })
-map("i", "<C-n>", "copilot#Next()", { expr = true, desc = "Next Copilot suggestion" })
-
 -- ── Terminals ───────────────────────────────────────────────────────────
 -- NvChad's toggleable terminals default to <A-h>/<A-v>/<A-i>, but Hyprland
 -- owns ALT ($mod = ALT in ~/.config/hypr/binds.conf -- Alt+H resizeactive,
