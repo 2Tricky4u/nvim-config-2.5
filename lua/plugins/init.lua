@@ -346,4 +346,63 @@ return {
       checkbox = { enabled = true },
     },
   },
+
+  -- ── Multiple cursors ────────────────────────────────────────────────────
+  -- JetBrains-style multi-caret editing. A bare Ctrl double-tap is not a
+  -- keypress a terminal can send, and Hyprland owns Alt, so everything lives
+  -- on Ctrl-arrows and a <leader>c prefix. <C-n>/<C-s> are NvChad's
+  -- nvim-tree toggle and save, hence not used here.
+  {
+    "jake-stewart/multicursor.nvim",
+    branch = "1.0",
+    event = "VeryLazy",
+    config = function()
+      local mc = require "multicursor-nvim"
+      mc.setup()
+      local map = vim.keymap.set
+
+      -- Stack cursors on the lines above/below.
+      map({ "n", "x" }, "<C-Up>", function() mc.lineAddCursor(-1) end, { desc = "MC: add cursor above" })
+      map({ "n", "x" }, "<C-Down>", function() mc.lineAddCursor(1) end, { desc = "MC: add cursor below" })
+      -- Skip lines live on <leader>c: Kitty owns <C-S-Up>/<C-S-Down> for scrollback.
+      map({ "n", "x" }, "<leader>ck", function() mc.lineSkipCursor(-1) end, { desc = "MC: skip line above" })
+      map({ "n", "x" }, "<leader>cj", function() mc.lineSkipCursor(1) end, { desc = "MC: skip line below" })
+
+      -- Word under cursor (or visual selection): add / skip / all matches.
+      map({ "n", "x" }, "<leader>cn", function() mc.matchAddCursor(1) end, { desc = "MC: add cursor at next match" })
+      map({ "n", "x" }, "<leader>cs", function() mc.matchSkipCursor(1) end, { desc = "MC: skip next match" })
+      map({ "n", "x" }, "<leader>cN", function() mc.matchAddCursor(-1) end, { desc = "MC: add cursor at prev match" })
+      map({ "n", "x" }, "<leader>cA", mc.matchAllAddCursors, { desc = "MC: add cursors at all matches" })
+
+      -- Ctrl-click to drop cursors with the mouse, like JetBrains Alt-click.
+      map("n", "<C-LeftMouse>", mc.handleMouse, { desc = "MC: add cursor with mouse" })
+      map("n", "<C-LeftDrag>", mc.handleMouseDrag, { desc = "MC: drag cursors with mouse" })
+      map("n", "<C-LeftRelease>", mc.handleMouseRelease, { desc = "MC: mouse release" })
+
+      -- Toggle cursors on/off without losing them, or drop all of them.
+      map({ "n", "x" }, "<leader>ct", mc.toggleCursor, { desc = "MC: toggle cursor here" })
+      map({ "n", "x" }, "<leader>cq", mc.clearCursors, { desc = "MC: clear all cursors" })
+
+      -- <Esc> in normal mode: re-enable disabled cursors first, then clear.
+      mc.addKeymapLayer(function(layerMap)
+        layerMap({ "n", "x" }, "<leader>cx", mc.deleteCursor, { desc = "MC: delete main cursor" })
+        layerMap("n", "<Esc>", function()
+          if not mc.cursorsEnabled() then
+            mc.enableCursors()
+          else
+            mc.clearCursors()
+          end
+        end)
+      end)
+
+      local hl = vim.api.nvim_set_hl
+      hl(0, "MultiCursorCursor", { reverse = true })
+      hl(0, "MultiCursorVisual", { link = "Visual" })
+      hl(0, "MultiCursorSign", { link = "SignColumn" })
+      hl(0, "MultiCursorMatchPreview", { link = "Search" })
+      hl(0, "MultiCursorDisabledCursor", { reverse = true })
+      hl(0, "MultiCursorDisabledVisual", { link = "Visual" })
+      hl(0, "MultiCursorDisabledSign", { link = "SignColumn" })
+    end,
+  },
 }
