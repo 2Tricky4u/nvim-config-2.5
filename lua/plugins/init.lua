@@ -59,6 +59,53 @@ return {
     },
   },
 
+  -- ── Sticky scroll (treesitter-context) ─────────────────────────────────
+  -- Pins the enclosing function / class / namespace / if / #ifdef lines to
+  -- the top of the window, like CLion's sticky lines. The plugin ships its own
+  -- c/cpp context queries (incl. preproc blocks, extern "C", lambdas), so it
+  -- needs only the parsers above, not nvim-treesitter's module system.
+  -- Colours live in chadrc.lua hl_add: with base46 transparency on, the
+  -- pinned lines would otherwise have no background at all.
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    event = { "BufReadPost", "BufNewFile" },
+    opts = {
+      mode = "cursor",
+      -- namespace > class > function > for > if fits in 5; beyond that drop
+      -- the outermost scopes first, since the innermost is what you need.
+      max_lines = 5,
+      trim_scope = "outer",
+      -- C/C++ signatures often wrap their parameter lists over several lines;
+      -- show only the first line of each context instead of the whole thing.
+      multiline_threshold = 1,
+      -- Keep it out of short splits (dap-ui panels, terminals, quickfix).
+      min_window_height = 20,
+      line_numbers = true,
+      zindex = 20,
+      on_attach = function(buf)
+        return vim.bo[buf].buftype == ""
+      end,
+    },
+    keys = {
+      {
+        "[c",
+        function()
+          -- In diff mode keep Vim's own "previous change" motion (diffview).
+          if vim.wo.diff then
+            return "[c"
+          end
+          vim.schedule(function()
+            require("treesitter-context").go_to_context(vim.v.count1)
+          end)
+          return "<Ignore>"
+        end,
+        expr = true,
+        desc = "Context: jump to enclosing scope",
+      },
+      { "<leader>tc", "<cmd>TSContext toggle<CR>", desc = "Context: toggle sticky scroll" },
+    },
+  },
+
   -- Mason: auto-install LSP servers and tools
   {
     "williamboman/mason.nvim",

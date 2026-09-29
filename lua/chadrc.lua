@@ -9,6 +9,16 @@ M.base46 = {
   theme = "eldritch",
   transparency = true,
 
+  -- treesitter-context has no base46 integration; give the sticky lines a
+  -- real background (transparency would leave them see-through) and an
+  -- underline marking where the pinned block ends.
+  hl_add = {
+    TreesitterContext = { bg = "one_bg" },
+    TreesitterContextLineNumber = { fg = "light_grey", bg = "one_bg" },
+    TreesitterContextBottom = { underline = true, sp = "grey" },
+    TreesitterContextLineNumberBottom = { underline = true, sp = "grey" },
+  },
+
   -- hl_override = {
   -- 	Comment = { italic = true },
   -- 	["@comment"] = { italic = true },
